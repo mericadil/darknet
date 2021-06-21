@@ -326,8 +326,27 @@ int compare_by_probs(const void *a_ptr, const void *b_ptr) {
     return delta < 0 ? -1 : delta > 0 ? 1 : 0;
 }
 
-void draw_detections_v3(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output)
+int str_cut(char *str, int begin, int len)
 {
+    int l = strlen(str);
+
+    if (len < 0) len = l - begin;
+    if (begin + len > l) len = l - begin;
+    memmove(str + begin, str + begin + len, l - len + 1);
+
+    return len;
+}
+
+void draw_detections_v3(image im, detection *dets, int num, float thresh, char **names, image **alphabet, int classes, int ext_output, char* filename)
+{
+    FILE * fp;
+    char* text_file[4096];
+    strcpy(text_file, filename);
+    str_cut(text_file, strlen(text_file)-5, 5);
+    strcat(text_file, ".txt");
+    
+    fp = fopen(text_file, "w+");
+
     static int frame_id = 0;
     frame_id++;
 
@@ -402,6 +421,7 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
             if (top < 0) top = 0;
             if (bot > im.h - 1) bot = im.h - 1;
 
+            fprintf(fp, "%d,%d,%d,%d\n", left, top, right, bot);
             //int b_x_center = (left + right) / 2;
             //int b_y_center = (top + bot) / 2;
             //int b_width = right - left;
@@ -460,6 +480,7 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
             }
     }
     free(selected_detections);
+    fclose(fp);
 }
 
 void draw_detections(image im, int num, float thresh, box *boxes, float **probs, char **names, image **alphabet, int classes)
