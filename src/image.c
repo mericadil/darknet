@@ -341,10 +341,12 @@ void draw_detections_v3(image im, detection *dets, int num, float thresh, char *
 {
     FILE * fp;
     char* text_file[4096];
-    strcpy(text_file, filename);
-    str_cut(text_file, strlen(text_file)-5, 5);
+    char *token = strtok(filename, ".");
+    strcpy(text_file, token);
+
+    //str_cut(text_file, strlen(text_file)-5, 5);
     strcat(text_file, ".txt");
-    
+    printf("%s\n", text_file);
     fp = fopen(text_file, "w+");
 
     static int frame_id = 0;
